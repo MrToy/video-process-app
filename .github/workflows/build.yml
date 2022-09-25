@@ -29,7 +29,7 @@ jobs:
         RUST_HOST=$(rustc -Vv | grep host | cut -f2 -d' ')
         cp ${{ steps.setup-ffmpeg.outputs.ffmpeg-path }} ./src-tauri/ffmpeg-$RUST_HOST
     - name: install app dependencies and build it
-      run: pnpm && pnpm build
+      run: npm i -g pnpm && pnpm && pnpm build
     - uses: tauri-apps/tauri-action@v0
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
