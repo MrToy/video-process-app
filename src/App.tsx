@@ -5,10 +5,8 @@ import { listen } from "@tauri-apps/api/event";
 import { convertFileSrc } from "@tauri-apps/api/tauri";
 import { open } from "@tauri-apps/api/dialog";
 import { Command } from "@tauri-apps/api/shell";
-//@ts-ignore
-import path from "path-browserify";
+import * as path from "@tauri-apps/api/path";
 import { createDir } from "@tauri-apps/api/fs";
-import { resolveResource, resourceDir } from "@tauri-apps/api/path";
 
 class Task {
   status: string = "处理中";
@@ -122,17 +120,22 @@ function App() {
     }
     const task = new Task();
     setTasks([task, ...tasks]);
-    const outputPicsDir = path.join(
-      output,
-      path.basename(video, path.extname(video))
-    );
-    const outputPicsName = path.join(outputPicsDir, "%05d.jpeg");
     try {
+      const outputPicsDir = await path.join(
+        output,
+        await path.basename(video, "." + (await path.extname(video)))
+      );
+      const outputPicsName = await path.join(outputPicsDir, "%05d.jpeg");
       await createDir(outputPicsDir, { recursive: true });
-      const result = await Command.sidecar(
-        "ffmpeg",
-        ["-i", video, "-f", "image2", "-q:v", "1", outputPicsName],
-      ).execute();
+      const result = await Command.sidecar("ffmpeg", [
+        "-i",
+        video,
+        "-f",
+        "image2",
+        "-q:v",
+        "1",
+        outputPicsName,
+      ]).execute();
       if (result.code != 0) {
         alert("Error: " + result.stderr);
       }
